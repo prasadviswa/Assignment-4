@@ -1,18 +1,17 @@
 const Hapi = require('@hapi/hapi');
 const Joi = require('@hapi/joi');
-
 require('./database');
 const Task = require('./module');
 
 const init = async () => {
   const server = new Hapi.Server({
-    port: 3009,
+    port: 5000,
     host: 'localhost',
   });
 
   server.route({
     method: 'POST',
-    path: '/tasks',
+    path: '/post',
     options: {
       validate: {
         payload: Joi.object({
@@ -21,53 +20,53 @@ const init = async () => {
           age: Joi.number().max(105).required(),
           email: Joi.string().email({ tlds: { allow: false } }),
         }),
-        failAction: (request, h, error) => {
+        failAction: (request, response, error) => {
           return error.isJoi
-            ? h.response(error.details[0]).takeover()
-            : h.response(error).takeover();
+            ? response.response(error.details[0]).takeover()
+            : response.response(error).takeover();
         },
       },
     },
-    handler: async (request, h) => {
+    handler: async (request, response) => {
       try {
         const task = new Task(request.payload);
         const taskSaved = await task.save();
-        return h.response(taskSaved);
+        return response.response(taskSaved);
       } catch (error) {
-        return h.response(error).code(500);
+        return response.response(error).code(500);
       }
     },
   });
 
   server.route({
     method: 'GET',
-    path: '/tasks',
-    handler: async (request, h) => {
+    path: '/get',
+    handler: async (request, response) => {
       try {
         const tasks = await Task.find();
-        return h.response(tasks);
+        return response.response(tasks);
       } catch (error) {
-        return h.response(error).code(500);
+        return response.response(error).code(500);
       }
     },
   });
 
   server.route({
     method: 'GET',
-    path: '/tasks/{id}',
-    handler: async (request, h) => {
+    path: '/get/{id}',
+    handler: async (request, response) => {
       try {
         const task = await Task.findById(request.params.id);
-        return h.response(task);
+        return response.response(task);
       } catch (error) {
-        return h.response(error).code(500);
+        return response.response(error).code(500);
       }
     },
   });
 
   server.route({
     method: 'PUT',
-    path: '/tasks/{id}',
+    path: '/put/{id}',
     options: {
       validate: {
         payload: Joi.object({
@@ -76,14 +75,14 @@ const init = async () => {
           age: Joi.number().max(105).required(),
           email: Joi.string().email({ tlds: { allow: false } }),
         }),
-        failAction: (request, h, error) => {
+        failAction: (request, response, error) => {
           return error.isJoi
-            ? h.response(error.details[0]).takeover()
-            : h.response(error).takeover();
+            ? response.response(error.details[0]).takeover()
+            : response.response(error).takeover();
         },
       },
     },
-    handler: async (request, h) => {
+    handler: async (request, response) => {
       try {
         const updatedTask = await Task.findByIdAndUpdate(
           request.params.id,
@@ -92,22 +91,22 @@ const init = async () => {
             new: true,
           }
         );
-        return h.response(updatedTask);
+        return response.response(updatedTask);
       } catch (error) {
-        return h.response(error).code(500);
+        return response.response(error).code(500);
       }
     },
   });
 
   server.route({
     method: 'DELETE',
-    path: '/tasks/{id}',
-    handler: async (request, h) => {
+    path: '/delete/{id}',
+    handler: async (request, response) => {
       try {
         const deletedTask = await Task.findByIdAndDelete(request.params.id);
-        return h.response(deletedTask);
+        return response.response(deletedTask);
       } catch (error) {
-        return h.response(error).code(500);
+        return response.response(error).code(500);
       }
     },
   });
