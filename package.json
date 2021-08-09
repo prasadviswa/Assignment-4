@@ -1,0 +1,17 @@
+{
+  "name": "t4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^20.1.5",
+    "@hapi/joi": "^17.1.1",
+    "mongoose": "^5.13.5",
+    "nodemon": "^2.0.12"
+  }
+}
